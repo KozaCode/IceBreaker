@@ -1,0 +1,22 @@
+html, body {
+    height: 100%;
+  }
+  
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  h1 {
+    font-size: 36px;
+    text-align: center;
+    animation: blink 1.5s infinite;
+  }
+  
+  @keyframes blink {
+    50% {
+      opacity: 0.35;
+    }
+  }

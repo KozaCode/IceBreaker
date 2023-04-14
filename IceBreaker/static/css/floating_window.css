@@ -1,0 +1,19 @@
+#floating-window {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+  }
+  
+  #floating-window h2 {
+    margin-top: 0;
+    font-size: 18px;
+  }
+  
+  #floating-window p {
+    font-size: 14px;
+  }

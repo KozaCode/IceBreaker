@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>IceBreaker</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/chat_style.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/floating_window.css')}}">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <!--<script src="{{url_for('static', filename='js/floating_window.js')}}"></script>-->
+  </head>
+  <body>
+    <div id="floating-window">
+        <h2>User Info</h2>
+        <p id="user-id">UserID:{{data.user_id}}</p>
+        <p id="user-name">UserNAME:{{data.user_name}}</p>
+        <p id="parner-id">PartnerID:{{data.partner_id}}</p>
+        <p id="parner-name">PartnerNAME:{{data.partner_name}}</p>
+        <p id="parner-name">PartnerNAME:{{data}}</p>
+    </div>
+    <div id="chat-window">
+      <!-- This is where chat messages will be displayed -->
+    </div>
+    <div id="message-input">
+      <textarea placeholder="Type your message here..."></textarea>
+      <button><i class="fas fa-paper-plane"></i></button>
+      <button><i class="fas fa-paperclip"></i></button>
+      <button><i class="fas fa-smile"></i></button>
+    </div>
+    <!-- Add any necessary scripts for media picker and emojis here -->
+  </body>
+</html>

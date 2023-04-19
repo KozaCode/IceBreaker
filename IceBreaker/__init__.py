@@ -12,7 +12,7 @@ socketio = SocketIO(app, manage_session=False)
 
 @app.route('/favicon.ico')
 def favicon():
-    return redirect('/static/favicon.ico')
+    return redirect('/static/images/favicon.ico')
 
 @app.errorhandler(404)
 def page_not_found(e):

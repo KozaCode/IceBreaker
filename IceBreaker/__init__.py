@@ -73,8 +73,8 @@ def index():
         return render_template('index.html', data={'user_id': session['user_id'], 'user_name': session['user_name'], 'partner_id': session['partner_id'], 'partner_name': session['partner_name']})
     else:
         print("user_id: %s" % session['user_id'])
-        return render_template('index.html', data={'user_id': session['user_id'], 'user_name': session['user_name'], 'partner_id': session['partner_id'], 'partner_name': session['partner_name']})
-        # return redirect('/wait')
+        # return render_template('index.html', data={'user_id': session['user_id'], 'user_name': session['user_name'], 'partner_id': session['partner_id'], 'partner_name': session['partner_name']})
+        return redirect('/wait')
         # return render_template('index.html', message="Welcome %s" % session['user_name'])
 
 if __name__ == '__main__':

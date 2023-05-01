@@ -10,10 +10,15 @@
 	<body>
 		<div class="container">
 			<h1>IceBreaker</h1>
-			<form action="/submit-form/" method="POST">
-				<label for="name">Name:</label>
-				<input type="text" id="name" name="name"><br><br>
-				<button type="submit">Submit</button>
+			<form action="" method="POST">
+				{{ form.hidden_tag() }}
+				{{ form.username.label }} {{ form.username() }}
+				{{ form.gender.label}} {{form.gender() }}
+				{{ form.age.label}} {{form.age() }}
+				{{ form.gender_pref.label}} {{form.gender_pref() }}
+				{{ form.min_age_pref.label}} {{form.min_age_pref() }}
+				{{ form.max_age_pref.label}} {{form.max_age_pref() }}
+				{{ form.submit() }}
 			</form>
 		</div>
 		<h1> {{ message }} </h1>

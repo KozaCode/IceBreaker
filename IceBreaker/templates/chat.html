@@ -27,8 +27,7 @@
 
         <div id="chat-header-left">
           <!--Circle div, temporary until no profile picture-->
-          <div id="chat-header-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}">
-          </div>
+          <div id="chat-header-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
           <!-- <img src="{{url_for('static', filename='images/profile_picture.png')}}" alt="Profile picture"> id="chat-header-profile-picture"/> -->
           <div id="chat-header-info">
             <h2 id="chat-header-name">{{data.user_name}}</h2>
@@ -45,41 +44,57 @@
       </header>
 
       <main id="chat-window">
-        <!-- This is where chat messages will be displayed -->
+          <div class="user-message-field message-field">
+            <div class="message-time-stamp">
+              <p>22.04.2023 14:30</p>
+            </div>
+            <div class="user-message message">
+              <p>Hello it is me! {{data.user_name}}</p>
+            </div>
+            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
+          </div>
+
+          <div class="partner-message-field message-field">
+            <div class="message-time-stamp">
+              <p>22.04.2023 14:30</p>
+            </div>
+            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
+            <div class="partner-message message">
+              <p>Hello it is me! {{data.user_name}}</p>
+            </div>
+          </div>
+
+          <div class="partner-message-field message-field">
+            <div class="message-time-stamp">
+              <p>22.04.2023 14:31</p>
+            </div>
+            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
+            <div class="partner-message message">
+              <p>Hello it is me! {{data.user_name}}</p>
+            </div>
+
+          </div>
+
+          <div class="user-message-field message-field">
+            <div class="message-time-stamp">
+              <p>22.04.2023 14:32</p>
+            </div>
+            <div class="user-message message">
+              <p>Hello it is me! {{data.user_name}}</p>
+            </div>
+            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
+          </div>
+
       </main>
       <form id="chat-input-form">
-        <textarea id="message-textarea" placeholder="Type your message here..." required></textarea>
-        <button type="submit" id="send-button" class="chat-input-button"><i data-feather="send"></i></button>
-        <button type="button" id="attach-button" class="chat-input-button"><i data-feather="image"></i></button>
-        <button type="button" id="emoji-button" class="chat-input-button"><i data-feather="smile"></i></button>
+        <textarea id="message-textarea" placeholder="Type your message here..." required oninput="auto_regrow(this)"></textarea>
+        <!-- DIV for buttons -->
+        <div id="chat-input-buttons">
+          <button type="submit" id="send-button" class="chat-input-button"><i data-feather="send"></i></button>
+          <button type="button" id="attach-button" class="chat-input-button"><i data-feather="image"></i></button>
+          <button type="button" id="emoji-button" class="chat-input-button"><i data-feather="smile"></i></button>
+        </div>
       </form>
     </div>
-    <script>
-        window.onload = function() {
-            feather.replace()
-        }
-        var connectionStatus = "online";
-        function changeStatus(status){
-            const chatHeaderStatus = document.getElementById("status-info");
-            if(status === "online"){
-                chatHeaderStatus.innerHTML = "Online<span id='status-dot'>";
-                chatHeaderStatus.style.color = "#cccccc"
-                document.getElementById("status-dot").style.backgroundColor = "#00ff00";
-            } else {
-                chatHeaderStatus.innerHTML = "Offline<span id='status-dot'>"
-                chatHeaderStatus.style.color = "#737373"
-                document.getElementById("status-dot").style.backgroundColor = "#770000";
-            }
-        }
-        function toggleStatus(){
-            if(connectionStatus === "online"){
-              connectionStatus = "offline";
-            } else {
-              connectionStatus = "online";
-            }
-            changeStatus(connectionStatus);
-        }
-        setInterval(toggleStatus, 1000);
-    </script>
   </body>
 </html>

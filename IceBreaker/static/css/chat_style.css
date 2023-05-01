@@ -1,4 +1,5 @@
 /* Dark themed chat page, minimalistic, pleasant */
+/*TODO: Use color functions */
 html, body {
   height: 100%;
   margin: 0;
@@ -6,7 +7,7 @@ html, body {
 }
 
 body {
-  background-color: #242424;
+  background-color: #101010;
   font-family: Arial, sans-serif;
   display: flex;
   align-items: center;
@@ -26,24 +27,29 @@ body {
   height: 80px;
   width: 100%;
   max-width: 800px;
-  position: fixed;
-  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* border: 1px solid #cccccc55; */
-  /* border-radius: 6px; */
+  background-color: #313131;
   color: #fff;
 }
 
 #chat-header-left{
   height: 100%;
-  /* background-color: #9a727230; */
   display: flex;
   align-items: center;
-  flex-grow: 1;
+  flex: 3;
   gap: 20px;
   padding-left: 20px;
+}
+
+#chat-header-right{
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  padding-right: 10px;
+  flex: 1;
+  gap: 10px;
 }
 
 #chat-header-info {
@@ -93,4 +99,185 @@ body {
 
 #dot-offline{
   background-color: #770000;
+}
+
+#chat-window{
+  width: 100%;
+  max-width: 800px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #1c1c1c;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 0.95em;
+}
+
+#chat-input-form{
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 10px;
+  padding-right: 10px;
+  gap: 10px;
+  background-color: #313131;
+}
+
+#message-textarea{
+  font-size: 1.3em;
+  height: 1em;
+  min-height: 50px;
+  max-height: 200px;
+  resize: none;
+  overflow: none;
+  color: white;
+  background-color: #242424;
+  flex:3;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+  display: flex;
+}
+
+#chat-input-buttons{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex:1;
+  gap:2px;
+}
+
+button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+  background-color: #555555;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover{
+  background-color: #444444;
+}
+
+button:active{
+  background-color: #222222;
+}
+
+button:disable{
+  background-color: #111111;
+}
+
+@media (min-width: 800px) {
+  #chat-input-form{
+    border-radius: 0 0 10px 10px;
+  }
+  #chat-header{
+    border-radius: 10px 10px 0 0;
+  }
+}
+
+#chat-window::-webkit-scrollbar {
+  background-color: #313131;
+  width: 5px;
+}
+
+#chat-window::-webkit-scrollbar-thumb {
+  background-color: #5c5c5c;
+  border-radius: 5px;
+}
+
+#chat-window::-webkit-scrollbar-track {
+  background-color: #272727;
+}
+
+.message-field{
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  /* margin-top: 10px; */
+  /* margin-bottom: 10px; */
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.user-message-field{
+  justify-content: flex-end;
+  background-color: #22222280;
+}
+
+.partner-message-field{
+  justify-content: flex-start;
+}
+
+.user-chat-profile-picture{
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+
+.chat-profile-picture img{
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
+
+.message{
+  width: auto;
+  min-width: 35px;
+  max-width: 50%;
+  background-color: #545454;
+  border-radius: 15px;
+  margin: 5px;
+  padding: 9px;
+}
+
+.message p{
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+.partner-message{
+  align-self: flex-start;
+  background-color: #3f3f3f;
+  text-align: left;
+}
+
+.user-message{
+  align-self: flex-end;
+  background-color: #007acc;
+  text-align: right;
+}
+
+.user-message-field > .message-time-stamp{
+  flex-basis: 100%;
+  text-align: right;
+}
+
+.partner-message-field > .message-time-stamp{
+  flex-basis: 100%;
+  text-align: left;
+}
+
+.message-time-stamp p{
+  font-size: 0.6em;
+  color: #ccc;
+  margin: 0;
+  padding: 0;
 }

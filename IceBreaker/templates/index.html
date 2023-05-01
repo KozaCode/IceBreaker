@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<title>IceBreaker</title>
 		<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/index_style.css')}}">
@@ -8,13 +8,6 @@
 		<!--<script src="{{url_for('static', filename='js/floating_window.js')}}"></script>-->
 	</head>
 	<body>
-		<div id="floating-window">
-            <h2>User Info</h2>
-            <p id="user-id">UserID:{{data.user_id}}</p>
-            <p id="user-name">UserNAME:{{data.user_name}}</p>
-            <p id="parner-id">PartnerID:{{data.partner_id}}</p>
-            <p id="parner-name">PartnerNAME:{{data.partner_name}}</p>
-        </div>
 		<div class="container">
 			<h1>IceBreaker</h1>
 			<form action="/submit-form/" method="POST">

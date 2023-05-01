@@ -6,9 +6,12 @@
     <title>IceBreaker Chat</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat_style.css')}}"/>
     <link rel="stylesheet" href="{{url_for('static', filename='css/floating_window.css')}}"/>
+    
+    <!-- https://feathericons.com/ -->
+    <!-- https://github.com/feathericons/feather#feather -->
     <script defer src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script defer src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-   <!--<script defer src="{{url_for('static', filename='js/chat_script.js')}}"></script>-->
+    <script defer src="{{url_for('static', filename='js/chat_script.js')}}"></script>
   </head>
   <body>
     <div id="floating-window">
@@ -17,6 +20,7 @@
       <p id="user-name">User Name: {{data.user_name}}</p>
       <p id="partner-id">Partner ID: {{data.partner_id}}</p>
       <p id="partner-name">Partner Name: {{data.partner_name}}</p>
+      <p id="partner-name">{{data}}</p>
     </div>
     <div id="container">
       <header id="chat-header">

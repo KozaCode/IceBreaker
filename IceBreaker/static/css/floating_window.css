@@ -1,8 +1,8 @@
 #floating-window {
     position: fixed;
-    top: 20px;
+    top: 200px;
     right: 20px;
-    background-color: #fff;
+    background-color: #ffffff68;
     border: 1px solid #ccc;
     padding: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);

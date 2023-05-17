@@ -4,18 +4,17 @@
 		<title>IceBreaker</title>
 		<script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
 		<script src="{{url_for('static', filename='js/wait_script.js')}}"></script>
-        <!--<script src="{{url_for('static', filename='js/floating_window.js')}}"></script>-->
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/wait_style.css')}}">
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/floating_window.css')}}">
 	</head>
 	<body>
-		<div id="floating-window">
+		<!-- <div id="floating-window">
             <h2>User Info</h2>
             <p id="user-id">UserID:{{data.user_id}}</p>
             <p id="user-name">UserNAME:{{data.user_name}}</p>
             <p id="parner-id">PartnerID:{{data.partner_id}}</p>
             <p id="parner-name">PartnerNAME:{{data.partner_name}}</p>
-        </div>
+        </div> -->
         <div id="message-container">
             <h1 id="waiting-message">{{message}}</h1>
             <div id="progress-container">

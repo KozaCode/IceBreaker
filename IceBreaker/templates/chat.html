@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IceBreaker Chat</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat_style.css')}}"/>
+    <link rel="stylesheet" href="../static/css/chat_style.css"/>
     <link rel="stylesheet" href="{{url_for('static', filename='css/floating_window.css')}}"/>
-    
+    <!-- <script src="{{url_for('static', filename='js/heartbeat.js')}}"></script> -->
     <!-- https://feathericons.com/ -->
     <!-- https://github.com/feathericons/feather#feather -->
     <script defer src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
@@ -14,23 +15,22 @@
     <script defer src="{{url_for('static', filename='js/chat_script.js')}}"></script>
   </head>
   <body>
-    <div id="floating-window">
+    <!-- <div id="floating-window">
       <h2>User Info</h2>
       <p id="user-id">User ID: {{data.user_id}}</p>
+      <p id="user-id">Socket ID: {{data.socket_id}}</p>
+      <p id="user-name">Room: {{data.room_id}}</p>
       <p id="user-name">User Name: {{data.user_name}}</p>
-      <p id="partner-id">Partner ID: {{data.partner_id}}</p>
-      <p id="partner-name">Partner Name: {{data.partner_name}}</p>
-      <p id="partner-name">{{data}}</p>
-    </div>
+      <p id="user-name">Participants: {{data.participants}}</p>
+    </div> -->
     <div id="container">
       <header id="chat-header">
-
         <div id="chat-header-left">
           <!--Circle div, temporary until no profile picture-->
           <div id="chat-header-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
           <!-- <img src="{{url_for('static', filename='images/profile_picture.png')}}" alt="Profile picture"> id="chat-header-profile-picture"/> -->
           <div id="chat-header-info">
-            <h2 id="chat-header-name">{{data.user_name}}</h2>
+            <h2 id="chat-header-name">{{data.id}}</h2>
             <div id="chat-header-status">
               <p id="status-info">Online<span id="status-dot"></span></p>
             </div>
@@ -44,8 +44,8 @@
       </header>
 
       <main id="chat-window">
-          <div class="user-message-field message-field">
-            <div class="message-time-stamp">
+          <!-- <div class="user-message-field message-field">
+            <div class="message-info">
               <p>22.04.2023 14:30</p>
             </div>
             <div class="user-message message">
@@ -55,44 +55,25 @@
           </div>
 
           <div class="partner-message-field message-field">
-            <div class="message-time-stamp">
+            <div class="message-info">
+              <p class="partner-name">Piotr</p>
               <p>22.04.2023 14:30</p>
             </div>
             <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
             <div class="partner-message message">
-              <p>Hello it is me! {{data.user_name}}</p>
+              <p>Test</p>
             </div>
-          </div>
+          </div> -->
 
-          <div class="partner-message-field message-field">
-            <div class="message-time-stamp">
-              <p>22.04.2023 14:31</p>
-            </div>
-            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
-            <div class="partner-message message">
-              <p>Hello it is me! {{data.user_name}}</p>
-            </div>
-
-          </div>
-
-          <div class="user-message-field message-field">
-            <div class="message-time-stamp">
-              <p>22.04.2023 14:32</p>
-            </div>
-            <div class="user-message message">
-              <p>Hello it is me! {{data.user_name}}</p>
-            </div>
-            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
-          </div>
 
       </main>
       <form id="chat-input-form">
         <textarea id="message-textarea" placeholder="Type your message here..." required oninput="auto_regrow(this)"></textarea>
         <!-- DIV for buttons -->
         <div id="chat-input-buttons">
-          <button type="submit" id="send-button" class="chat-input-button"><i data-feather="send"></i></button>
-          <button type="button" id="attach-button" class="chat-input-button"><i data-feather="image"></i></button>
-          <button type="button" id="emoji-button" class="chat-input-button"><i data-feather="smile"></i></button>
+          <button type="submit" id="send-button" class="chat-input-button" action=""><i data-feather="send"></i></button>
+          <button type="button" id="attach-button" class="chat-input-button" action=""><i data-feather="image"></i></button>
+          <button type="button" id="emoji-button" class="chat-input-button" action=""><i data-feather="smile"></i></button>
         </div>
       </form>
     </div>

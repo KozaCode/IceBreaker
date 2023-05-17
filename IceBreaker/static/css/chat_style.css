@@ -239,12 +239,13 @@ button:disable{
 
 .message{
   width: auto;
-  min-width: 35px;
+  /* min-width:; */
   max-width: 50%;
   background-color: #545454;
   border-radius: 15px;
   margin: 5px;
-  padding: 9px;
+  /* margin-bottom: 0; */
+  padding: 5px 10px 5px 10px;
 }
 
 .message p{
@@ -265,19 +266,32 @@ button:disable{
   text-align: right;
 }
 
-.user-message-field > .message-time-stamp{
+.message-info{
+  margin-bottom: 5px;
+}
+
+.user-message-field > .message-info{
   flex-basis: 100%;
   text-align: right;
 }
 
-.partner-message-field > .message-time-stamp{
+.partner-message-field > .message-info{
   flex-basis: 100%;
   text-align: left;
 }
 
-.message-time-stamp p{
+.message-info p{ 
+  display: inline-block;
   font-size: 0.6em;
   color: #ccc;
   margin: 0;
   padding: 0;
+}
+
+.message-info > .partner-name{
+  font-size: 0.8em;
+  background-color: #2e2e2e;
+  padding: 2px 5px 2px 5px;
+  border-radius: 5px;
+  margin-right: 5px;
 }

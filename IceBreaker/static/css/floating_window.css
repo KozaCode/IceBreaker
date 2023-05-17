@@ -1,5 +1,6 @@
 #floating-window {
     position: fixed;
+    max-width: 300px;
     top: 200px;
     right: 20px;
     background-color: #ffffff68;
@@ -9,11 +10,11 @@
     z-index: 9999;
   }
   
-  #floating-window h2 {
-    margin-top: 0;
-    font-size: 12px;
-  }
-  
-  #floating-window p {
-    font-size: 8px;
-  }
+#floating-window h2 {
+  margin-top: 0;
+  font-size: 12px;
+}
+
+#floating-window p {
+  font-size: 8px;
+}

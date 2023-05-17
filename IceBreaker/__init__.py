@@ -29,7 +29,10 @@ app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'data', 'database.db')
+data_folder = os.path.join(basedir, 'data')
+os.makedirs(data_folder, exist_ok=True)
+db_path = os.path.join(data_folder, 'database.db')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)

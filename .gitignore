@@ -162,3 +162,4 @@ cython_debug/
 flask_session/
 tree.py
 database.db
+directory_tree.txt

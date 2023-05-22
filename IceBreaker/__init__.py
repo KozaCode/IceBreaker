@@ -16,8 +16,8 @@ def create_app():
 
     
 
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)
+    # log = logging.getLogger('werkzeug')
+    # log.setLevel(logging.ERROR)
 
     load_dotenv()
     app.secret_key = os.getenv("SECRET_KEY")
@@ -37,8 +37,11 @@ def create_app():
     db.init_app(app)
     socketio.init_app(app, manage_session=False)
     
-    from . import routes
-    app.register_blueprint(routes.main_bp)
+    from .routes import main_bp
+    # app.register_blueprint(main_bp)
+    with app.app_context():
+        app.register_blueprint(main_bp)
+        db.create_all()
 
     return app
         

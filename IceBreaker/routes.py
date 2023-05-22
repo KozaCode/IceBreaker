@@ -6,10 +6,6 @@ import uuid
 
 main_bp = Blueprint('main', __name__)
 
-@main_bp.before_app_first_request
-def create_database():
-    """Create database if it doesn't exist"""
-    db.create_all()
 
 @main_bp.route('/favicon.ico')
 def favicon():
@@ -48,18 +44,30 @@ def wait():
         print("#"*80)
         return render_template('wait.html', message="We are looking for someone to talk to you. Please wait...", data={'user_id': session['user_id'], 'user_name': session['user_name']})
 
-@main_bp.route('/', methods=['GET', 'POST'])
-def index():
-    """Index page, handle login form"""
-    if 'user_id' not in session:
-        form = LoginForm()
-        if form.validate_on_submit():
-            new_user = User(user_name=form.username.data+"_"+uuid.uuid4().hex[:3], gender=form.gender.data, age=form.age.data, gender_pref=form.gender_pref.data, min_age_pref=form.min_age_pref.data, max_age_pref=form.max_age_pref.data)
-            db.session.add(new_user)
-            db.session.commit()
-            session['user_id'] = new_user.id
-            session['user_name'] = new_user.user_name
-            return redirect('/wait')
-    else:
+
+@main_bp.route('/', methods=['GET'])
+def handle_index_page():
+    """Send user to index page"""
+    print("GET")
+    if 'user_id' in session:
+        print("GET Redirect to wait from GET")
         return redirect('/wait')
-    return render_template('index.html', form=form)
+    else:
+        print("Render_template")
+        return render_template('index.html', form=LoginForm())
+    
+    
+@main_bp.route('/', methods=['POST'])
+def handle_index_form():
+    """Handle login form"""
+    print("POST")
+    form = LoginForm()
+    if form.validate_on_submit():
+        print("Form correct")
+        new_user = User(user_name=form.username.data+"_"+uuid.uuid4().hex[:3], gender=form.gender.data, age=form.age.data, gender_pref=form.gender_pref.data, min_age_pref=form.min_age_pref.data, max_age_pref=form.max_age_pref.data)
+        db.session.add(new_user)
+        db.session.commit()
+        session['user_id'] = new_user.id
+        session['user_name'] = new_user.user_name
+        print("Redirect to wait from POST")
+        return redirect('/wait')

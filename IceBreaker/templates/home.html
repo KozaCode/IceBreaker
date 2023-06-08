@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>IceBreaker</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- https://iconify.design/ -->
+    <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/home_style.css')}}">
+    <script defer src="{{url_for('static', filename='js/home_script.js')}}"></script>
+</head>
+<body>
+    <h1 id="title">IceBreaker</h1>
+    <div id="button-container">
+        <div class="button" id="random-pairing">
+            <span class="iconify" data-icon="ph:shuffle-bold"></span>
+            Random pairing
+        </div>
+        <div class="button" id="connect-direct">
+            <span class="iconify" data-icon="fa-solid:plug"></span>
+            Connect directly
+        </div>
+        <div class="button" id="create-room">
+            <span class="iconify" data-icon="ic:baseline-add-box"></span>
+            Create a chat room
+        </div>
+        <div class="button" id="your-rooms">
+            <span class="iconify" data-icon="ph:list-fill"></span>
+            Your rooms
+        </div>
+        <div class="button" id="settings">
+            <span class="iconify" data-icon="ic:baseline-settings"></span>
+            Settings
+        </div>
+    </div>
+</body>
+</html>

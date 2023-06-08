@@ -15,9 +15,10 @@ This is a simple online chat application that allows users to chat with stranger
 
 ## TODO
 
-* [ ] Implement random pairing feature
-* [ ] Implement chat rooms
-* [ ] Implement filtering users by preferences
+* [X] Implement random pairing feature
+* [X] Implement chat rooms
+* [X] Implement filtering users by preferences
+* [X] Implement storing messages
 * [ ] Implement settings menu for user preferences
 * [ ] Implement direct connect with other user
 * [ ] Implement multi-chat room (multiple users)

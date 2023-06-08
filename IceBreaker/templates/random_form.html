@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>IceBreaker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/random_form_style.css')}}">
+    <script defer src="{{url_for('static', filename='js/random_form_script.js')}}"></script>
+</head>
+<body>
+    <div id="container">
+        <h1>IceBreaker</h1>
+        <p>Type in your details to find a random partner!</p> 
+        <form action="" method="POST">
+            {{ form.hidden_tag() }}
+                {{ form.username.label }} 
+                {{ form.username }}
+
+                {{ form.gender.label}} 
+                {{form.gender }}
+
+                {{ form.gender_pref.label}}
+                {{form.gender_pref }}
+
+                {{ form.age.label}}
+                {{form.age }}
+
+                {{ form.min_age_pref.label}}
+                {{form.min_age_pref }}
+
+                {{ form.max_age_pref.label}}
+                {{form.max_age_pref }}
+            <div id="submit-container">
+                {{form.submit}}
+            </div>
+        </form>
+    </div>
+</body>
+</html>

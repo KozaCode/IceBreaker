@@ -3,6 +3,7 @@ from flask import Flask, session
 from IceBreaker import db, create_app
 from IceBreaker.models import User
 import uuid
+import threading
 
 class UserTest(unittest.TestCase):
 
@@ -52,6 +53,40 @@ class UserTest(unittest.TestCase):
             self.assertEqual(form_data['max_age_pref'], 30)
             self.assertEqual(user.socket_id, None)
             self.assertEqual(user.waiting, False)
+    
+        # Tests that a new user is created with a unique username and session ID after submitting a valid login form.
+    def test_user_not_logged_in_valid_login(self):
+        with self.app.test_client() as client:
+            response = client.post('/', data=dict(
+                username='testuser',
+                gender='male',
+                age=25,
+                gender_pref='female',
+                min_age_pref=20,
+                max_age_pref=30
+            ), follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'We are looking for someone to talk to you. Please wait...', response.data)
+            
+    def user_get_index(self, client):
+        for _ in range(10):
+            response = client.get('/')
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'IceBreaker', response.data)
+            
+    def test_concurent_get(self):
+        threads = []
+        # semaphore = threading.Semaphore(0)
+        for _ in range(200):
+            with self.app.test_client() as client:
+                t = threading.Thread(target=self.user_get_index, args=(client, ))
+                threads.append(t)
+                t.start()
+        
+        # semaphore.acquire(200)
+            
+        for thread in threads:
+            thread.join()
             
 if __name__ == "__main__":
     unittest.main()

@@ -6,6 +6,8 @@ class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column(db.String(32), primary_key=True, default=lambda: uuid.uuid4().hex, unique=True, nullable=False)
     socket_id = db.Column(db.String(20), unique=True, nullable=True)
+    paired = db.Column(db.Boolean, unique=False, nullable=False, default=False)
+    
     user_name = db.Column(db.String(32), unique=False, nullable=False)
     waiting = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     gender = db.Column(db.String(32), unique=False, nullable=False)

@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IceBreaker Chat</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat_style.css')}}"/>
-    <link rel="stylesheet" href="../static/css/chat_style.css"/>
     <link rel="stylesheet" href="{{url_for('static', filename='css/floating_window.css')}}"/>
-    <!-- <script src="{{url_for('static', filename='js/heartbeat.js')}}"></script> -->
     <!-- https://feathericons.com/ -->
     <!-- https://github.com/feathericons/feather#feather -->
     <script defer src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script defer src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script defer src="{{url_for('static', filename='js/IndexedDB_script.js')}}"></script>
     <script defer src="{{url_for('static', filename='js/chat_script.js')}}"></script>
+
+    <!-- Video.js -->
+    <link defer href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
   </head>
   <body>
     <!-- <div id="floating-window">
@@ -39,7 +42,7 @@
 
         <div id="chat-header-right">
           <button id="chat-header-info-button"><i data-feather="info"></i></button>
-          <button id="chat-header-close-button"><i data-feather="settings"></i></button>
+          <button id="chat-header-settings-button"><i data-feather="settings"></i></button>
         </div>
       </header>
 
@@ -48,13 +51,10 @@
             <div class="message-info">
               <p>22.04.2023 14:30</p>
             </div>
-            <div class="user-message message">
-              <p>Hello it is me! {{data.user_name}}</p>
-            </div>
             <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
-          </div>
+          </div> -->
 
-          <div class="partner-message-field message-field">
+         <!-- <div class="partner-message-field message-field">
             <div class="message-info">
               <p class="partner-name">Piotr</p>
               <p>22.04.2023 14:30</p>
@@ -68,7 +68,7 @@
 
       </main>
       <form id="chat-input-form">
-        <textarea id="message-textarea" placeholder="Type your message here..." required oninput="auto_regrow(this)"></textarea>
+        <textarea id="message-textarea" placeholder="Type your message here..." required></textarea>
         <!-- DIV for buttons -->
         <div id="chat-input-buttons">
           <button type="submit" id="send-button" class="chat-input-button" action=""><i data-feather="send"></i></button>
@@ -77,5 +77,6 @@
         </div>
       </form>
     </div>
+    <div id="lightbox" style="display: none"></div>
   </body>
 </html>

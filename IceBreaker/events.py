@@ -5,46 +5,143 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from .models import User, ChatSession, ChatParticipant
 from .utility import print_users
 import time
+import datetime
 from sqlalchemy import or_, and_
 import random
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
+#Session attributes: user_id, user_name, socket_id, room
+
+@socketio.on('updateChatSettings')
+def handle_update_settings(data): #Settings: user_name, chat_name, allow_join, direct_join_key, chat_password
+    logger.info("User %s %s updated settings", session['user_name'], session['user_id'])
+    logger.info("Data: %s", data)
+    changed = False
+    for key, value in data.items():
+        if key == 'user_name':
+            session['user_name'] = value
+            user = User.query.get(session['user_id'])
+            user.user_name = value
+            changed = True
+        elif key == 'chat_name':
+            room = ChatSession.query.get(session['room'])
+            room.chat_name = value
+            changed = True
+        elif key == 'allow_join':
+            room = ChatSession.query.get(session['room'])
+            room.allow_join = value
+            changed = True
+        elif key == 'direct_join_key':
+            room = ChatSession.query.get(session['room'])
+            room.direct_join_key = value
+            changed = True
+        elif key == 'chat_password':
+            room = ChatSession.query.get(session['room'])
+            room.chat_password = value
+            changed = True
+            
+    if changed:
+        db.session.commit()
+        return emit('reload')
 
 @socketio.on('userMessage')
-def handle_message(message):
+def handle_user_message(user_message):
     """Handle message"""
-    print(f"Message from {session['user_name']}: {message['message']}")
-    #Desired format: 22.04.2023 14:30
+    if user_message['message_type'] == 'text':
+        logger.info("Message from %s: %s", session['user_name'], user_message['message'])
+    #Desired date format: 22.04.2023 14:30
     time_string = time.strftime("%d.%m.%Y %H:%M", time.localtime())
-    print("Wysyłam wiadomość do pokoju: " + session['room'])
-    return emit('partnerMessage', {"message": message['message'], "author": session['user_name'], "time" : time_string, 'socket': session['socket_id']}, to=session['room'], skip_sid=request.sid)
-
+    timestamp = time.time()
+    logger.info("Sending message from %s to room %s", session['user_name'], session['room'])
+    
+    emit("updateMessageTime", {"message_id": user_message['message_id'],
+                               "time": time_string,
+                               "timestamp": timestamp})
+    
+    return emit('partnerMessage', { "message_id": user_message['message_id'],
+                                    "message_type": user_message['message_type'],
+                                    "message": user_message['message'],
+                                    "room": session['room'],
+                                    "author": session['user_name'],
+                                    "author_id": session['user_id'],
+                                    "time" : time_string,
+                                    "timestamp": timestamp,
+                                    "socket": session['socket_id']},
+                to=session['room'], skip_sid=request.sid)
 
 @socketio.on('join_chat')
-def join(data):
-    """Join chat function, handle joining chat"""
-    print("JOIN_CHAT--------------------------------------------")
+def handle_join_chat():
+    """Joining user to the chat. Called when user is matched with another user and their browser is redirected to /chat"""
     #TODO: JOIN USER TO THE DESIRED CHAT, CHECK IF USER BELONGS TO THE CHAT
-    #TODO: RECEIVE INFO FROM THE USER IF SUCCESSFULY JOINED AND DISABLE THEIR FLAG JOINED_NOT_RECEIVED
-    user = User.query.filter_by(id=session['user_id']).first()
-    participant_of = ChatParticipant.query.filter_by(user_id=user.id).first()
+    
+    user = User.query.get(session['user_id'])
+    #User is not in the database
+    if user is None:
+        return redirect('/') #FIXME: Redirect to error page
+    #CHAT PARTICIPANT: ID, USER_ID, CHAT_ID
+    #EXAMPLE: 1, (PETER), (CHAT1) 
+    #EXAMPLE: 2, (JOHN), (CHAT1)
+    #EXAMPLE: 3, (PETER), (CHAT2)
+    #EXAMPLE: 4, (JULIA), (CHAT2)
+    participant_of = ChatParticipant.query.filter_by(user_id=user.id).one_or_none()
+    #User is not participant of any chat
+    if participant_of is None:
+        return redirect('/') #FIXME: Redirect to error page
+
+    #CHAT SESSION: ID, CHAT_NAME, PARTICIPANTS
+    #EXAMPLE: 1, (CHAT1), (PETER, JOHN)
+    #EXAMPLE: 2, (CHAT2), (PETER, JULIA)
     room = ChatSession.query.filter_by(id=participant_of.chat_id).first()
+    #This room does not exist
+    if room is None:
+        return redirect('/') #FIXME: Redirect to error page
+    
+    #Make sure that user belongs to the certain chat
+    if ChatParticipant.query.filter_by(user_id=user.id, chat_id=room.id).first() is None:
+        return redirect('/') #FIXME: Redirect to error page
+
     join_room(room.id)
-    print(f"User {session['user_name']} {session['user_id']} {session['socket_id']} joined room: {room.id}")
-    sockets_in_room.setdefault(room.id, []).append(session['socket_id'])
-    print(sockets_in_room)
     session['room'] = room.id
-    print(f"User {session['user_name']} {session['user_id']} {session['socket_id']} joined room: {room.id}")
-    return emit('joined')
+    logger.info("User %s %s joined room %s", session['user_name'], session['user_id'], session['room'])
+    
+    sockets_in_room.setdefault(room.id, []).append(session['socket_id'])
+    logger.info("Sockets in room %s: %s", room.id, sockets_in_room[room.id])
+    
+    participants_in_room = User.query.join(ChatParticipant, User.id == ChatParticipant.user_id).filter(ChatParticipant.chat_id == room.id).all()
+    participants = {}
+    for participant in participants_in_room:
+        participants[participant.id] = participant.user_name
+
+    logger.info("Sending this data to room %s: %s", room.id, {'user_id': session['user_id'],
+                                                              'user_name': session['user_name'],
+                                                              'room': room.id,
+                                                              'participants': participants,
+                                                              'allow_join': room.allow_join,
+                                                              'direct_join_key': room.direct_join_key,
+                                                              'chat_password': room.chat_password})
+    
+    return emit('joined', {'user_id': session['user_id'],
+                           'user_name': session['user_name'],
+                           'room': room.id,
+                           'chat_name': room.chat_name,
+                           'created_at': room.created_at.strftime("%d.%m.%Y %H:%M"),
+                           'participants': participants,
+                           'allow_join': room.allow_join,
+                           'direct_join_key': room.direct_join_key,
+                           'chat_password': room.chat_password})
 
 @socketio.on('connect')
 def connect():
-    """Connect function, handle connection"""
-    if 'user_id' not in session:
-        print(f"CONNECT {request.sid}--------------------------------------------")
+    """Connect function, called each time user connects(when page is loaded)"""
+    if not session.get('user_id'):
+        logger.info("User %s connected", request.sid)
         return redirect('/')
-    print(f"CONNECT {session['user_name']} {request.sid}--------------------------------------------")
-    user = User.query.filter_by(id=session['user_id']).first()
+    
+    logger.info("User %s %s connected", session['user_name'], session['user_id'])
+    user = User.query.get(session['user_id'])
     session['socket_id'] = request.sid
     user.socket_id = session['socket_id']
     db.session.commit()
@@ -52,56 +149,68 @@ def connect():
 @socketio.on('disconnect')
 def disconnect():
     """Disconnect function, handle disconnection"""
-    if 'user_id' not in session:
-        print(f"DISCONNECT {request.sid}--------------------------------------------")
+    if not session.get('user_id'):
+        logger.error("User %s disconnected", request.sid)
         return redirect('/')
-    print(f"DISCONNECT {session['user_name']} {request.sid}--------------------------------------------")
+    logger.error("User %s %s %s disconnected", session['user_name'], session['user_id'], session['socket_id'])
     try:
-        user = User.query.filter_by(id=session['user_id']).first()
-        user.socket_id = None
-        user.waiting = False
+        user = User.query.filter(User.id == session['user_id']).update({'socket_id': None, 'waiting': False})
         db.session.commit()
+        logger.info("Successfully updated user %s %s", session['user_name'], session['user_id'])
     except Exception as e:
-        print(e)
-        pass
+        logger.error("Error updating user %s %s", session['user_name'], session['user_id'])
+
     try:
         leave_room(session['room'])
-        sockets_in_room[session['room']].remove(session['socket_id'])
+        logger.info("%s", sockets_in_room)
+        sockets_in_room[session['room']].remove(session['socket_id']) #FIXME: KeyError, x not in list
+        logger.info("%s", sockets_in_room)
+        logger.info("Successfully removed socket %s from room %s", session['socket_id'], session['room'])
     except Exception as e:
-        print(e)
-        pass
-        
+        logger.error("Error removing socket %s", session['user_id'])
     return redirect('/')
-
 
 @socketio.on('pair')
 def pair():
     """Pairing function, handle pairing users"""
-    # print(f"PAIRING {request.sid}--------------------------------------------")
-    if 'user_id' not in session:
+    if not session.get('user_id'):
         return redirect('/')
     else:
-        print_info = True
-        # if print_info: print("%"*80)
-        user = User.query.filter_by(id=session['user_id']).first()
+        user = User.query.filter_by(id=session['user_id']).one_or_none()
+        logger.info("user: %s, paired: %s", user.user_name, user.paired)
+        if user.paired:
+            logger.info("User %s %s already paired. Redirect to /chat", user.user_name, user.id)
+            
+            return emit('paired', data={'user_id': session['user_id'],
+                                        'user_name': session['user_name']},
+                        room=session['socket_id'])
+        
         user.waiting = True
         db.session.commit()
         query_user_preferences = User.query.filter(and_(User.id != user.id, User.waiting == True))
 
+        print(f"\n\nUsers before filtering for user: {session['user_name']}")
+        print_users(query_user_preferences.all())
+
         if user.min_age_pref is not None:
             query_user_preferences = query_user_preferences.filter(User.age >= user.min_age_pref)
+            print(f"\n\nUsers by min age ({user.min_age_pref}) for user: {session['user_name']}")
+            print_users(query_user_preferences.all())
 
         if user.max_age_pref is not None:
             query_user_preferences = query_user_preferences.filter(User.age <= user.max_age_pref)
+            print(f"\n\nUsers by max age ({user.max_age_pref}) for user: {session['user_name']}")
+            print_users(query_user_preferences.all())
 
         if user.gender_pref is not None:
             if user.gender_pref == 'both':
                 query_user_preferences = query_user_preferences.filter(or_(User.gender == 'male', User.gender == 'female'))
             else:
                 query_user_preferences = query_user_preferences.filter(User.gender == user.gender_pref)
-        
-        if print_info: print("USER PREFERENCES == USERS")
-        if print_info: print_users(query_user_preferences.all())
+
+            print(f"\n\nUsers by user gender_pref ({user.gender_pref}) for user: {session['user_name']}")
+            print_users(query_user_preferences.all())
+
         query_user_preferences = query_user_preferences.subquery()
 
         query_matching_preferences = User.query.filter(
@@ -116,8 +225,10 @@ def pair():
                 )
             )
         )
-        if print_info: print("USERS PREFERENCES == USER")
-        if print_info: print_users(query_matching_preferences.all())
+        
+        print(f"\n\nMatching preferences before intersection for user: {session['user_name']}")
+        print_users(query_matching_preferences.all())
+
         query_matching_preferences = query_matching_preferences.subquery()
         
         query_intersection = db.session.query(User).select_from(
@@ -125,18 +236,16 @@ def pair():
         )
         
         matching_users = query_intersection.all()
+
+        print(f"\n\nMatching users after intersection for user: {session['user_name']}")
+        print_users(matching_users)
+
         if len(matching_users) == 0:
             return emit('no_match_yet', data={'user_id': session['user_id'], 'user_name': session['user_name']})
 
-        if print_info: print("="*30, "MATCHING USERS", "="*30)
-        if print_info: print_users(query=matching_users)
-        if print_info: print("="*30, "SELECTED USER", "="*30)
         selected_user = random.choice(matching_users)
-        if print_info: print(selected_user)
-        if print_info: print_users(query=selected_user)
-        if print_info: print("-"*80)
-        
-        chat = ChatSession(chat_name=f"{session['user_name']} - {selected_user.user_name}")
+        #DateTime
+        chat = ChatSession(chat_name=f"{session['user_name']} - {selected_user.user_name}", created_at=datetime.datetime.now())
         db.session.add(chat)
         db.session.commit()
         
@@ -144,10 +253,18 @@ def pair():
         participant2 = ChatParticipant(user_id=selected_user.id, chat_id=chat.id)
         user.waiting = False
         selected_user.waiting = False
+        
+        user.paired = True
+        selected_user.paired = True
+        
         db.session.add_all([participant1, participant2])
         db.session.commit()
+
+        logger.info("User(session) %s %s paired with user %s %s", session['user_name'], session['user_id'], selected_user.user_name, selected_user.id)
+        emit('paired', data={'user_id': selected_user.id,
+                             'user_name': selected_user.user_name},
+             room=selected_user.socket_id)
         
-        print(f"SENDIN PAIRED EVENT TO {selected_user.user_name} {selected_user.socket_id}")
-        emit('paired', data={'user_id': selected_user.id, 'user_name': selected_user.user_name}, room=selected_user.socket_id)
-        print(f"SENDIN PAIRED EVENT TO {session['user_name']} {session['socket_id']}")
-        emit('paired', data={'user_id': session['user_id'], 'user_name': session['user_name']}, room=session['socket_id'])
+        emit('paired', data={'user_id': session['user_id'],
+                             'user_name': session['user_name']},
+             room=session['socket_id'])

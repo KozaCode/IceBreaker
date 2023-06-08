@@ -163,3 +163,7 @@ flask_session/
 tree.py
 database.db
 directory_tree.txt
+
+.*
+
+target/

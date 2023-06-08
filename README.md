@@ -6,11 +6,11 @@ This is a simple online chat application that allows users to chat with stranger
 
 * Real-time chat with multiple users
 
-## Technologies Used
+## Setup
 
 1. Clone the repository: `git clone https://github.com/KozaCode/IceBreaker.git`
-2. Run the setup script: `python setup.py`
-3. Start the server: `python run.py`
+2. Run `setup.bat`
+3. Start the server: `run.bat`
 4. Open the app in your browser: `http://localhost:5000`
 
 ## TODO

@@ -20,7 +20,7 @@ The main features of the application include:
 ![1687463931675](image/README/1687463931675.png)
 *Fig. 1. Homepage*
 
-![Chat Screen](image/README/1687463596466.png "Chat Screen")
+![1687466207144](image/README/1687466207144.png)
 *Fig. 2. Chat screen*
 
 ## Technologies
@@ -36,8 +36,12 @@ The main features of the application include:
 
 1. Clone the repository `git clone https://github.com/KozaCode/IceBreaker.git`
 2. Run `setup.bat` to install the virtual environment.
-3. Run `run.bat` to start the server.
-4. Open the app in your browser: `http://localhost:5000`
+3. Create your own .env file in the root directory of the project and add the following line:
+   ```
+   SECRET_KEY=<Your Secret Key>
+   ```
+4. Run `run.bat` to start the server.
+5. Open the app in your browser: `http://localhost:5000`
 
 ## Future of the Project
 

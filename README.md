@@ -15,10 +15,10 @@ The main features of the application include:
 * Text, image, and video message transmission
 * User and room settings customization
 
-## Screenshots
+## Screenshot
 
-![Homepage](image/README/1687463713073.png "Homepage")
-*Fig. 1. Homepage with four buttons*
+![1687463931675](image/README/1687463931675.png)
+*Fig. 1. Homepage*
 
 ![Chat Screen](image/README/1687463596466.png "Chat Screen")
 *Fig. 2. Chat screen*

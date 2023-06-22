@@ -6,6 +6,7 @@
     <title>IceBreaker Chat</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/chat_style.css')}}"/>
     <link rel="stylesheet" href="{{url_for('static', filename='css/floating_window.css')}}"/>
+
     <!-- https://feathericons.com/ -->
     <!-- https://github.com/feathericons/feather#feather -->
     <script defer src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
@@ -15,25 +16,25 @@
 
     <!-- Video.js -->
     <link defer href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <script defer src="https://unpkg.com/video.js/dist/video.min.js"></script>
   </head>
   <body>
-    <!-- <div id="floating-window">
+    {# <!-- <div id="floating-window">
       <h2>User Info</h2>
       <p id="user-id">User ID: {{data.user_id}}</p>
       <p id="user-id">Socket ID: {{data.socket_id}}</p>
       <p id="user-name">Room: {{data.room_id}}</p>
       <p id="user-name">User Name: {{data.user_name}}</p>
       <p id="user-name">Participants: {{data.participants}}</p>
-    </div> -->
+    </div> --> #}
     <div id="container">
       <header id="chat-header">
         <div id="chat-header-left">
           <!--Circle div, temporary until no profile picture-->
           <div id="chat-header-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
-          <!-- <img src="{{url_for('static', filename='images/profile_picture.png')}}" alt="Profile picture"> id="chat-header-profile-picture"/> -->
+          {#<!-- <img src="{{url_for('static', filename='images/profile_picture.png')}}" alt="Profile picture"> id="chat-header-profile-picture"/> -->#}
           <div id="chat-header-info">
-            <h2 id="chat-header-name">{{data.id}}</h2>
+            <h2 id="chat-header-name"></h2>
             <div id="chat-header-status">
               <p id="status-info">Online<span id="status-dot"></span></p>
             </div>
@@ -43,29 +44,11 @@
         <div id="chat-header-right">
           <button id="chat-header-info-button"><i data-feather="info"></i></button>
           <button id="chat-header-settings-button"><i data-feather="settings"></i></button>
+          <button id="chat-header-close-button"><i data-feather="x"></i></button>
         </div>
       </header>
 
       <main id="chat-window">
-          <!-- <div class="user-message-field message-field">
-            <div class="message-info">
-              <p>22.04.2023 14:30</p>
-            </div>
-            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
-          </div> -->
-
-         <!-- <div class="partner-message-field message-field">
-            <div class="message-info">
-              <p class="partner-name">Piotr</p>
-              <p>22.04.2023 14:30</p>
-            </div>
-            <div class="user-chat-profile-picture chat-profile-picture"><img src="{{url_for('static', filename='images/rickroll-roll.gif')}}"></div>
-            <div class="partner-message message">
-              <p>Test</p>
-            </div>
-          </div> -->
-
-
       </main>
       <form id="chat-input-form">
         <textarea id="message-textarea" placeholder="Type your message here..." required></textarea>

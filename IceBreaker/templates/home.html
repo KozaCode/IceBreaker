@@ -5,13 +5,25 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    
     <!-- https://iconify.design/ -->
-    <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+    <script defer src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/home_style.css')}}">
+    <script>
+        var data = {
+            user_name: "{{data.user_name}}",
+        };
+        console.log("Loaded user name: " + data.user_name);
+
+    </script>
     <script defer src="{{url_for('static', filename='js/home_script.js')}}"></script>
 </head>
 <body>
-    <h1 id="title">IceBreaker</h1>
+    <div id="welcome-container">
+        <h1 id="title">IceBreaker</h1>
+        <h2 id="welcome-message" class="hidden">Welcome, <span id="user-name-display">{{data.user_name}}</span>!</h2>
+    </div>
     <div id="button-container">
         <div class="button" id="random-pairing">
             <span class="iconify" data-icon="ph:shuffle-bold"></span>
@@ -32,6 +44,132 @@
         <div class="button" id="settings">
             <span class="iconify" data-icon="ic:baseline-settings"></span>
             Settings
+        </div>
+    </div>
+
+    <div id="lightbox-user-name" class="lightbox">
+        <div class="lightbox-content">
+            <h2>Enter your name</h2>
+            <p>You are not logged in. Enter your name to continue.</p>
+            <form id="user-name-form" action="/user-name" method="POST">
+                    {{ user_name_form.hidden_tag() }}
+
+                    {{ user_name_form.user_name.label }} 
+                    {{ user_name_form.user_name(value=data.user_name) }}
+                <div id="submit-container">
+                    {{ user_name_form.submit }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="lightbox-pairing" class="lightbox">
+        <div class="lightbox-content">
+            <h2>Random Pairing</h2>
+            <p>Type in your details to find a random partner!</p> 
+            <form action="/random-pairing" method="POST">
+                    {{ random_pairing_form.hidden_tag() }}
+
+
+
+                    {{ random_pairing_form.gender.label}} 
+                    {{ random_pairing_form.gender }}
+
+                    {{ random_pairing_form.gender_pref.label}}
+                    {{ random_pairing_form.gender_pref }}
+
+                    {{ random_pairing_form.age.label}}
+                    {{ random_pairing_form.age }}
+
+                    {{ random_pairing_form.min_age_pref.label}}
+                    {{ random_pairing_form.min_age_pref }}
+
+                    {{ random_pairing_form.max_age_pref.label}}
+                    {{ random_pairing_form.max_age_pref }}
+                <div id="submit-container">
+                    {{ random_pairing_form.submit }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="lightbox-connect-direct" class="lightbox">
+        <div class="lightbox-content">
+            <!-- USE FLASK-WTF FORM -->
+            <h2>Connect Directly</h2>
+            <p>Enter the room key and password to connect to a chat room.</p>
+            <form action="/connect-directly" method="POST">
+                    {{ direct_join_form.hidden_tag() }}
+
+                    {{ direct_join_form.join_key.label}} 
+                    {{ direct_join_form.join_key }}
+
+                    {{ direct_join_form.password.label}}
+                    {{ direct_join_form.password }}
+                <div id="submit-container">
+                    {{ direct_join_form.submit }}
+                </div>
+            </form>
+            <!-- <input type="text" id="connect-room-nickname" placeholder="Nickname">
+            <input type="text" id="connect-room-key" placeholder="Room Key">
+            <input type="password" id="connect-room-password" placeholder="Password">
+            <button type="button" id="connect-direct-submit">Connect</button> -->
+        </div>
+    </div>
+    
+    <!-- Lightbox for create a chat room -->
+    <div id="lightbox-create-room" class="lightbox">
+        <div class="lightbox-content">
+            <!-- USE FLASK-WTF FORM -->
+            <h2>Create a Chat Room</h2>
+            <p>Enter the room name, join key and password to create a chat room.</p>
+            <form action="/create-room" method="POST">
+                    {{ create_room_form.hidden_tag() }}
+
+                    {{ create_room_form.chat_name.label}} 
+                    {{ create_room_form.chat_name }}
+
+                    {{ create_room_form.join_key.label}}
+                    {{ create_room_form.join_key }}
+
+                    {{ create_room_form.password.label}}
+                    {{ create_room_form.password }}
+                <div id="submit-container">
+                    {{ create_room_form.submit }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="lightbox-rooms-list" class="lightbox">
+        <div class="lightbox-content">
+            <!-- USE FLASK-WTF FORM -->
+            <h2>List of your rooms</h2>
+            <p>Here is a list of all the rooms you belong</p>
+            <div id="rooms-list"> 
+                <!-- Jinja2 template -->
+                {% for room in data.rooms %}
+                    <div class="room" data-joinkey={{room.join_key}}>
+                        <div class="room-avatar"></div>
+                        <div class="room-name">{{room.name}} {{room.join_key}}</div>
+                        <div class="room-number-of-users"><span class="iconify" data-icon="material-symbols:person"></span>{{room.number_of_users}}
+                            <div class="user-list">
+                                {% for user in room.participants %}
+                                    <p>{{user.user_name}}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- <div class="room-join-button">Join</div> -->
+                    </div>
+                {% endfor %}
+
+                <!-- <div class="room">
+                    <div class="room-avatar"></div>
+                    <div class="room-name"></div>
+                    <div class="room-number-of-users"></div>
+                    <div class="room-join-button"></div>
+                </div> -->
+            </div>
         </div>
     </div>
 </body>

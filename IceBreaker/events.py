@@ -8,12 +8,95 @@ import time
 import datetime
 from sqlalchemy import or_, and_
 import random
+import pytz
+import uuid
 
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 #Session attributes: user_id, user_name, socket_id, room
+
+@socketio.on('leave')
+def handle_leave_room():
+    """Handle leaving room"""
+    logger.info("User %s %s left room %s", session['user_name'], session['user_id'], session['room'])
+    leave_room(session['room'])
+    sockets_in_room[session['room']].remove(session['socket_id'])
+    logger.info("Sockets in room %s: %s", session['room'], sockets_in_room[session['room']])
+    session['room'] = None
+    return redirect('/')
+
+@socketio.on('directJoin')
+def handle_direct_join(data):
+    """Handle direct join"""
+    logger.info("%s", data)
+    if 'user_id' not in session:
+        logger.info("User is not logged in %s", request.sid)
+        new_user = User(user_name=data['user_name']+"_"+uuid.uuid4().hex[:3], socket_id=request.sid) #TODO: USE FORM INSTEAD OF GETTING DATA THIS WAY
+        db.session.add(new_user)
+        db.session.commit()
+        logger.info("User %s %s created", new_user.user_name, new_user.id)
+        session['user_id'] = new_user.id
+        session['user_name'] = new_user.user_name
+        session['socket_id'] = new_user.socket_id
+
+    logger.info("User %s %s trying to join room %s with password %s", session['user_name'], session['user_id'], data['join_key'], data['chat_password'])
+    #Filter rooms by allowed join and direct join key
+    room = ChatSession.query.filter_by(allow_join=True, direct_join_key=data['join_key']).first()
+    if room is None:
+        logger.info("Room %s does not exist", data['join_key'])
+        return emit('roomNotFound')
+    #
+    if room.chat_password is not None:
+        if room.chat_password != data['chat_password']:
+            pass
+    #joined above conditions
+    if room.chat_password is not None and room.chat_password != data['chat_password']:
+        logger.info("Room %s password is incorrect", data['join_key'])
+        return emit('incorrectPassword')
+    
+    participant = ChatParticipant(user_id=session['user_id'], chat_id=room.id)
+    db.session.add(participant)
+    db.session.commit()
+    
+    logger.info("User %s %s joined room %s", session['user_name'], session['user_id'], room.id)
+    join_room(room.id)
+    session['room'] = room.id
+    sockets_in_room.setdefault(room.id, []).append(session['socket_id'])
+    logger.info("Sockets in room %s: %s", room.id, sockets_in_room[room.id])
+    
+    participants_in_room = User.query.join(ChatParticipant, User.id == ChatParticipant.user_id).filter(ChatParticipant.chat_id == room.id).all()
+    participants = {}
+    for participant in participants_in_room:
+        participants[participant.id] = participant.user_name
+        
+    return emit('roomJoined', {'room': room.id})
+
+    
+@socketio.on('createRoom')
+def handle_create_room(data):
+    """Handle room creation"""
+    if 'user_id' not in session:
+        logger.info("User is not logged in %s", request.sid)
+        new_user = User(user_name=data['user_name']+"_"+uuid.uuid4().hex[:3], socket_id=request.sid) #TODO: USE FORM INSTEAD OF GETTING DATA THIS WAY
+        db.session.add(new_user)
+        db.session.commit()
+        session['user_id'] = new_user.id
+        session['user_name'] = new_user.user_name
+        session['socket_id'] = new_user.socket_id
+    
+    logger.info("Data: %s", data)
+    logger.info("User %s %s created room %s", session['user_name'], session['user_id'], data['chat_name'])
+    # Create a new chat session
+    chat = ChatSession(chat_name=data['chat_name'], allow_join=True, direct_join_key=data['join_key'], chat_password=data['chat_password'])
+    db.session.add(chat)
+    db.session.commit()
+    participant = ChatParticipant(user_id=session['user_id'], chat_id=chat.id)
+    db.session.add(participant)
+    db.session.commit()
+    return emit('roomCreated', {'room_id': chat.id})
+    
 
 @socketio.on('updateChatSettings')
 def handle_update_settings(data): #Settings: user_name, chat_name, allow_join, direct_join_key, chat_password
@@ -53,8 +136,15 @@ def handle_user_message(user_message):
     if user_message['message_type'] == 'text':
         logger.info("Message from %s: %s", session['user_name'], user_message['message'])
     #Desired date format: 22.04.2023 14:30
-    time_string = time.strftime("%d.%m.%Y %H:%M", time.localtime())
-    timestamp = time.time()
+    #Need to use UTC time
+    utc_time = datetime.datetime.now(tz=pytz.UTC)
+    time_string = utc_time.isoformat()
+    timestamp = utc_time.timestamp()
+    
+    # logger.info("UTC time: %s", utc_time)
+    # logger.info("UTC string: %s", time_string)
+    # logger.info("Timestamp: %s", timestamp)
+
     logger.info("Sending message from %s to room %s", session['user_name'], session['room'])
     
     emit("updateMessageTime", {"message_id": user_message['message_id'],
@@ -67,41 +157,73 @@ def handle_user_message(user_message):
                                     "room": session['room'],
                                     "author": session['user_name'],
                                     "author_id": session['user_id'],
-                                    "time" : time_string,
-                                    "timestamp": timestamp,
+                                    "time" : time_string, #This is UTC time #TODO: use only UTC timestamps
+                                    "timestamp": timestamp, #This is timestamp in UTC 
                                     "socket": session['socket_id']},
                 to=session['room'], skip_sid=request.sid)
 
 @socketio.on('join_chat')
-def handle_join_chat():
+def handle_join_chat(data=None):
     """Joining user to the chat. Called when user is matched with another user and their browser is redirected to /chat"""
     #TODO: JOIN USER TO THE DESIRED CHAT, CHECK IF USER BELONGS TO THE CHAT
-    
+    if data is not None:
+        logger.info("%s", data)
     user = User.query.get(session['user_id'])
     #User is not in the database
     if user is None:
-        return redirect('/') #FIXME: Redirect to error page
+        return redirect('/') #FIXME: Redirect to error page or sernder error message
     #CHAT PARTICIPANT: ID, USER_ID, CHAT_ID
     #EXAMPLE: 1, (PETER), (CHAT1) 
     #EXAMPLE: 2, (JOHN), (CHAT1)
     #EXAMPLE: 3, (PETER), (CHAT2)
     #EXAMPLE: 4, (JULIA), (CHAT2)
-    participant_of = ChatParticipant.query.filter_by(user_id=user.id).one_or_none()
+    if data is None:
+        #Last chat user joined
+        room = ChatSession.query.get(session['room'])
+        if room is None:
+            logger.error("Room %s probably has been deleted", session['room'])
+            session['room'] = None
+            return redirect('/')
+        participant_of = ChatParticipant.query.filter_by(user_id=user.id, chat_id=room.id).one_or_none()
+        if participant_of is None:
+            logger.error("User %s %s is not participant of chat %s", session['user_name'], session['user_id'], room.id)
+            session['room'] = None
+            return redirect('/')
+        
+        # participant_of = ChatParticipant.query.filter_by(user_id=user.id).order_by(ChatParticipant.joined_at.desc()).first()
+        # if participant_of is None:
+        #     logger.error("User %s %s is not participant of any chat", session['user_name'], session['user_id'])
+        #     return redirect('/') #FIXME: Redirect to error page
+        # room = ChatSession.query.filter_by(id=participant_of.chat_id).first()
+        # if room is None:
+        #     logger.error("Room %s probably has been deleted", participant_of.chat_id)
+        #     return redirect('/') #FIXME: Redirect to error page
+    else:
+        room = ChatSession.query.filter_by(direct_join_key=data['join_key']).one_or_none()
+        logger.info("Room: %s", room)
+        if room is None:
+            logger.error("Room with key %s does not exist", data['join_key'])
+            return redirect('/')
+        participant_of = ChatParticipant.query.filter_by(user_id=user.id, chat_id=room.id).one_or_none()
+        if participant_of is None:
+            logger.error("User %s %s is not participant of chat with key %s", session['user_name'], session['user_id'], data['join_key'])
+            return redirect('/') #FIXME: Redirect to error page
+        
     #User is not participant of any chat
-    if participant_of is None:
-        return redirect('/') #FIXME: Redirect to error page
 
     #CHAT SESSION: ID, CHAT_NAME, PARTICIPANTS
     #EXAMPLE: 1, (CHAT1), (PETER, JOHN)
     #EXAMPLE: 2, (CHAT2), (PETER, JULIA)
     room = ChatSession.query.filter_by(id=participant_of.chat_id).first()
+    logger.info("Room: %s", room)
     #This room does not exist
     if room is None:
+        logger.error("Room %s probably has been deleted", participant_of.chat_id)
         return redirect('/') #FIXME: Redirect to error page
     
-    #Make sure that user belongs to the certain chat
-    if ChatParticipant.query.filter_by(user_id=user.id, chat_id=room.id).first() is None:
-        return redirect('/') #FIXME: Redirect to error page
+    # #Make sure that user belongs to the certain chat
+    # if ChatParticipant.query.filter_by(user_id=user.id, chat_id=room.id).first() is None:
+    #     return redirect('/') #FIXME: Redirect to error page
 
     join_room(room.id)
     session['room'] = room.id
@@ -116,18 +238,20 @@ def handle_join_chat():
         participants[participant.id] = participant.user_name
 
     logger.info("Sending this data to room %s: %s", room.id, {'user_id': session['user_id'],
-                                                              'user_name': session['user_name'],
-                                                              'room': room.id,
-                                                              'participants': participants,
-                                                              'allow_join': room.allow_join,
-                                                              'direct_join_key': room.direct_join_key,
-                                                              'chat_password': room.chat_password})
+                                                                'user_name': session['user_name'],
+                                                                'room': room.id,
+                                                                'chat_name': room.chat_name,
+                                                                'created_at': room.created_at.isoformat(),
+                                                                'participants': participants,
+                                                                'allow_join': room.allow_join,
+                                                                'direct_join_key': room.direct_join_key,
+                                                                'chat_password': room.chat_password})
     
     return emit('joined', {'user_id': session['user_id'],
                            'user_name': session['user_name'],
                            'room': room.id,
                            'chat_name': room.chat_name,
-                           'created_at': room.created_at.strftime("%d.%m.%Y %H:%M"),
+                           'created_at': room.created_at.isoformat(),
                            'participants': participants,
                            'allow_join': room.allow_join,
                            'direct_join_key': room.direct_join_key,
@@ -245,7 +369,7 @@ def pair():
 
         selected_user = random.choice(matching_users)
         #DateTime
-        chat = ChatSession(chat_name=f"{session['user_name']} - {selected_user.user_name}", created_at=datetime.datetime.now())
+        chat = ChatSession(chat_name=f"{session['user_name']} - {selected_user.user_name}")
         db.session.add(chat)
         db.session.commit()
         

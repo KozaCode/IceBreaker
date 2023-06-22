@@ -29,11 +29,93 @@ body {
     background: #1a1a1a;
 }
 
-h1 {
+/* h1 {
     color: #fff;
     font-size: 5em;
     text-align: center;
     margin-right: 50px;
+} */
+
+.button i {
+    margin-right: 10px;
+}
+
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 450px;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-content {
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: #161616;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.lightbox-content form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-content form input, .lightbox-content form select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.lightbox-content form button {
+    padding: 10px 20px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-weight: 600;
+}
+
+.lightbox-content form button:hover {
+    background: #333;
+}
+
+#welcome-container{
+    margin: 0 50px 0 0;
+}
+
+#welcome-container h1{
+    color: #fff;
+    font-size: 5em;
+    text-align: center;
+}
+
+#welcome-container h2{
+    padding: 0;
+    margin: 0;
+    color: #e9e9e9;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
 }
 
 @media (max-width: 730px) {
@@ -42,15 +124,99 @@ h1 {
         flex-direction: column;
         text-align: center;
     }
-    h1{
-        margin: 0 0 40px 0;
-        font-size: 4.5em;
+    #welcome-container{
+        margin: 0 0 30px 0;
+        /* font-size: 4.5em; */
+    }
+    #welcome-container h2{
+        font-size: 1em;
     }
 }
 
-.button i {
-    margin-right: 10px;
+#rooms-list{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;    
+    align-items: center;
+    margin: 0 0 30px 0;
+    color: #fff;
+    gap: 2px;
 }
 
+#rooms-list .room{
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #252525;
+    cursor: pointer;
+}
 
+#rooms-list .room:first-child{
+    border-radius: 10px 10px 0 0;
+    /* background-color: #d41c1c; */
+}
 
+#rooms-list .room:last-child{
+    border-radius: 0 0 10px 10px;
+}
+
+#rooms-list .room:only-child{
+    border-radius: 10px;
+}
+
+#rooms-list .room .room-avatar{
+    width: 35px;
+    height: 35px;
+    margin: 10px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+#rooms-list .room .room-name{
+    flex: 1;
+    padding: 0 10px 0 10px;
+    text-align: left;
+    min-width: 200px;
+}
+
+#rooms-list .room .room-name a{
+    color: #fff;
+    text-decoration: none;
+}
+
+#rooms-list .room .room-number-of-users{
+    width: 20%;
+    height: 100%;
+    min-width: 100px;
+    text-align: center;
+}
+
+@media (max-width: 550px){
+    .lightbox-content{
+        width: 100%;
+    }
+}
+
+.room-number-of-users:hover .user-list {
+    display: block;
+}
+
+.user-list {
+    display: none;
+    position: absolute;
+    background-color: #363636;
+    /* min-width: 160px; */
+    width: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    padding: 6px 10px;
+    z-index: 1;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 0.8em;
+}
+
+.user-list p{
+    margin: 0;
+    padding: 0;
+}

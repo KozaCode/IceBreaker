@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem("display_user_profile_picture", state)
         displayUserProfilePicture = state;
     }else{
-        console.log("display_user_profile_picture:", localStorage.getItem("display_user_profile_picture"), localStorage.getItem("display_user_profile_picture") === "true");
+        console.log("display_user_profile_picture:", localStorage.getItem("display_user_profile_picture"));
+        console.log("display_user_profile_picture:", localStorage.getItem("display_user_profile_picture") === "true");
         displayUserProfilePicture = (localStorage.getItem("display_user_profile_picture") === "true");
     }
 
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem("display_partner_profile_picture", state)
         displayPartnerProfilePicture = state;
     }else{
+        console.log("display_partner_profile_picture:", localStorage.getItem("display_partner_profile_picture"));
         console.log("display_partner_profile_picture:", localStorage.getItem("display_partner_profile_picture") === "true");
         displayPartnerProfilePicture = (localStorage.getItem("display_partner_profile_picture") === "true");
     }
@@ -31,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const attachment_button = document.getElementById("attach-button");
     const info_button = document.getElementById("chat-header-info-button");
     const settings_button = document.getElementById("chat-header-settings-button");
+    const close_button = document.getElementById("chat-header-close-button");
     const chat_header_name = document.getElementById("chat-header-name");
     const participants_dict = {};
     var infoContainer = null;
@@ -245,6 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return messageContentElement;
     }
 
+    function setElementTime(messageTime, time){
+        let date = new Date(time);
+        messageTime.innerHTML = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+        messageTime.dataset.timestamp = time;
+        messageTime.dataset.utc = time;
+    }
+
     function createChatMessage(data, sender, contentType) {
         console.log("createChatMessage sender:", sender);
         console.log("createChatMessage contentType:", contentType);
@@ -274,7 +284,12 @@ document.addEventListener('DOMContentLoaded', function() {
             messageAvatar.classList.add("message-avatar");
         }
     
-        messageTime.innerHTML = data.time;
+        // UTC to local time (YYYY-MM-DD HH:MM)
+        setElementTime(messageTime, data.time);
+        // let date = new Date(data.time);
+        // messageTime.innerHTML = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+        // messageTime.dataset.timestamp = data.timestamp;
+        // messageTime.dataset.utc = data.time;
 
         messageMainContainer.classList.add(sender + "-message-main-container", "message-main-container");
 
@@ -353,13 +368,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.on('partnerMessage', function(data) { //RECEIVE PARTNER MESSAGE FROM SERVER
         console.log("Otrzymano wiadomość:", data);
+        if(data.author_id === chatConfig.user_id){
+            sender = "user";
+        }else{
+            sender = "partner";
+        }
         if(data.room === chatConfig.room){
-            createChatMessage(data, "partner", data.message_type);
+            createChatMessage(data, sender, data.message_type);
             console.log("Otrzymano wiadomość z TEGO SAMEGO pokoju co użytkownik!");
         }else{
             console.log("Otrzymano wiadomość z INNEGO pokoju niż użytkownik!");
         }
-        addMessageToDB(data.message_id, data.room, data.message_type, data.message, data.time, data.timestamp, data.author, data.author_id, "partner");
+
+        addMessageToDB(data.message_id, data.room, data.message_type, data.message, data.time, data.timestamp, data.author, data.author_id, sender);
     });
 
     socket.on('updateMessageTime', function(data){
@@ -370,7 +391,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const message = document.querySelector("[data-message_id='" + data.message_id + "']");
                 const messageInfo = message.querySelector(".message-header");
                 const messageInfoTime = messageInfo.querySelector("p");
-                messageInfoTime.innerHTML = time;
+                setElementTime(messageInfoTime, time);
+                // messageInfoTime.innerHTML = time;
             } catch (error) {
                 console.log("Nie udało się zaktualizować czasu wiadomości na stronie!", error);
             }
@@ -519,7 +541,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 chatInfoItemTitle.innerHTML = "Created at";
             
             const chatInfoItemContent = document.createElement("p");
-                chatInfoItemContent.innerHTML = chatConfig.created_at;
+                setElementTime(chatInfoItemContent, chatConfig.created_at);
+                // chatInfoItemContent.innerHTML = chatConfig.created_at;
             
             listPopupItems[3].appendChild(chatInfoItemTitle);
             listPopupItems[3].appendChild(chatInfoItemContent);
@@ -803,9 +826,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // }
                 console.log("DATA: ", input.dataset.info, ":", input.checked, "TYPE: ", input.type)
                 if(input.type === "checkbox" && (ignoreDefault || input.checked !== (input.dataset.default === "true"))){
-                    
+                    console.log(input.dataset.info, ":", input.checked, "default:", (input.dataset.default === "true"), "return value: ", input.checked);
                     dictChanges[input.dataset.info] = {
-                        "value": (input.checked === "on"),
+                        "value": input.checked,
                         "info": input.dataset.info,
                         "local": input.dataset.local
                     }
@@ -833,11 +856,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(key, ":", value);
                 if(value.local){
                     if(value.info === "display_user_profile_picture"){
-                        displayUserProfilePicture = value.value;
-                        localStorage.setItem("display_user_profile_picture", (value.value == true));
+                        // displayUserProfilePicture = value.value;
+                        // console.log("DisplayUserProfilePicture value: ", value.value);
+                        localStorage.setItem("display_user_profile_picture", value.value);
                     }else if(value.info === "display_partner_profile_picture"){
-                        displayPartnerProfilePicture = value.value;
-                        localStorage.setItem("display_partner_profile_picture", (value.value == true));
+                        // displayPartnerProfilePicture = value.value;
+                        // console.log("DisplayPartnerProfilePicture value: ", value.value);
+                        localStorage.setItem("display_partner_profile_picture", value.value);
                     }
                 }
                 needReload = true;
@@ -907,12 +932,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function loadMessages(room_id){
+        console.log("Loading messages for room:", room_id, "...")
         getMessagesFromDB(room_id).then(messages => {
             messages.sort(function(a, b){
                 return a.timestamp - b.timestamp;
             });
             messages.forEach(message => {
                 console.log("Loading message:", message);
+                sender = message.sender
+                if(message.author_id === chatConfig.user_id){
+                    sender = "user";
+                }
                 createChatMessage({"message": message.content, "time": message.time, "author": message.author, "message_id": message.message_id}, message.sender, message.content_type);
             });
         }).catch(err => {
@@ -931,6 +961,7 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.on('joined', function(data) {
         console.log("Joined!")
         chatConfig = data;
+        console.log("Chat config:", chatConfig);
         const participantsEntries = Object.entries(chatConfig.participants);
         participantsEntries.forEach(([userId, userName]) => {
             participants_dict[userId] = { 
@@ -957,5 +988,10 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.on('reload', function(data){
         console.log("Reload request received!");
         location.reload();
+    });
+
+    close_button.addEventListener("click", function(e){
+        socket.emit("leave");
+        window.location.href = "/";
     });
 });
